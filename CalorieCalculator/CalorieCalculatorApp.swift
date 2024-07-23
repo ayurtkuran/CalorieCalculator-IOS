@@ -7,7 +7,7 @@ struct MyApp: App {
   var body: some Scene {
     WindowGroup {
       NavigationView {
-        if calorieNeed.isEmpty {
+        if calorieNeed.isEmpty { //kalori değeri girilmediğinde ana ekrana yollar
           StartView()
         } else {
           ContentView(calorieNeed: $calorieNeed)
