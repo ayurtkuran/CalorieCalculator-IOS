@@ -206,7 +206,7 @@ struct ContentView: View {
               Text("Ürün başarıyla eklendi")
                 .padding()
                 .foregroundColor(.white)
-                .background(Color.green.opacity(0.9))
+                .background(Color.green.opacity(0.95))
                 .cornerRadius(10)
                 .shadow(radius: 5)
               Spacer()
