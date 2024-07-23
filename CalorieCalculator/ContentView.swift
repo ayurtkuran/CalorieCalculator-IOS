@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ContentView: View {
-  @Binding var calorieNeed: String
+  @Binding var calorieNeed: String //variable diğer dosyaya geçer
   @State private var Eklendi: Bool = false
     @State private var showInput: Bool = false
     @State private var sliderValue: Double = 250.0
