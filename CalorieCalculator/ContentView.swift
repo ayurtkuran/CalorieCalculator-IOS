@@ -187,7 +187,7 @@ struct ContentView: View {
                                     Text("Ekle")
                                         .padding()
                                         .foregroundColor(.white.opacity(0.85))
-                                        .background(Color.black.opacity(0.45))
+                                        .background(Color.green.opacity(0.95))
                                         .cornerRadius(10)
                                 }
                             }
