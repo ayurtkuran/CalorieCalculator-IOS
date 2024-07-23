@@ -21,7 +21,7 @@ struct ContentView: View {
     @Environment(\.dismiss) var dismiss
 
     func saveTotals() {
-        UserDefaults.standard.set(totalMakarna, forKey: "totalMakarna")
+        UserDefaults.standard.set(totalMakarna, forKey: "totalMakarna") //usera özel kaydetme
         UserDefaults.standard.set(totalTavuk, forKey: "totalTavuk")
         UserDefaults.standard.set(totalKiyma, forKey: "totalKiyma")
         UserDefaults.standard.set(totalPilav, forKey: "totalPilav")
