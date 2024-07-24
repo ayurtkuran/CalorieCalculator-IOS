@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ContentView: View {
   @Binding var calorieNeed: String //variable diğer dosyaya geçer
+  @State private var hold: Bool = false
   @State private var Eklendi: Bool = false
     @State private var showInput: Bool = false
     @State private var sliderValue: Double = 250.0
@@ -62,11 +63,26 @@ struct ContentView: View {
                                     .shadow(radius: 10)
                                     .cornerRadius(10)
                             }
+                            .simultaneousGesture(      //Uzun Süre Basılı Tutma Action
+                              LongPressGesture(minimumDuration: 0.5)
+                                              .onEnded { _ in
+                                                  withAnimation {
+                                                      self.hold = true
+                                                    self.selectedProduct = "Makarna"
+                                                  }
+                                                  DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                                                      withAnimation {
+                                                          self.hold = false
+                                                      }
+                                                  }
+                                              }
+                                      )
                             Spacer().frame(width: 20)
 
                             Button(action: {
                                 if selectedProduct == "Tavuk" {
                                     self.showInput.toggle()
+
                                 } else {
                                     self.showInput = true
                                     self.selectedProduct = "Tavuk"
@@ -81,6 +97,21 @@ struct ContentView: View {
                                     .shadow(radius: 10)
                                     .cornerRadius(10)
                             }
+                            .simultaneousGesture(      //Uzun Süre Basılı Tutma Action
+                              LongPressGesture(minimumDuration: 0.5)
+                                              .onEnded { _ in
+                                                  withAnimation {
+                                                      self.hold = true
+                                                    self.selectedProduct = "Tavuk"
+                                                  }
+                                                  DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                                                      withAnimation {
+                                                          self.hold = false
+                                                      }
+                                                  }
+                                              }
+                                      )
+
                             Spacer().frame(width: 20)
 
                             Button(action: {
@@ -100,6 +131,20 @@ struct ContentView: View {
                                     .shadow(radius: 10)
                                     .cornerRadius(10)
                             }
+                            .simultaneousGesture(      //Uzun Süre Basılı Tutma Action
+                              LongPressGesture(minimumDuration: 0.5)
+                                              .onEnded { _ in
+                                                  withAnimation {
+                                                      self.hold = true
+                                                    self.selectedProduct = "Kıyma"
+                                                  }
+                                                  DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                                                      withAnimation {
+                                                          self.hold = false
+                                                      }
+                                                  }
+                                              }
+                                      )
                             Spacer().frame(width: 20)
 
                             Button(action: {
@@ -119,6 +164,21 @@ struct ContentView: View {
                                     .shadow(radius: 10)
                                     .cornerRadius(10)
                             }
+                            .simultaneousGesture(      //Uzun Süre Basılı Tutma Action
+                              LongPressGesture(minimumDuration: 0.5)
+
+                                              .onEnded { _ in
+                                                  withAnimation {
+                                                      self.hold = true
+                                                    self.selectedProduct = "Pilav"
+                                                  }
+                                                  DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                                                      withAnimation {
+                                                          self.hold = false
+                                                      }
+                                                  }
+                                              }
+                                      )
                             Spacer().frame(width: 15)
                         }
                         .padding()
@@ -203,6 +263,40 @@ struct ContentView: View {
                     }
                 }
             }
+          if hold{
+            if selectedProduct == "Tavuk"{
+              Text("Tavuk Göğsü")
+                .padding()
+                .foregroundColor(.colorText)
+                .background(Color.colorButton)
+                .cornerRadius(10)
+              .shadow(radius: 5)}
+            if selectedProduct == "Makarna"{
+              Text("Makarna")
+                .padding()
+                .foregroundColor(.colorText)
+                .background(Color.colorButton)
+                .cornerRadius(10)
+              .shadow(radius: 5)
+            }
+            if selectedProduct == "Kıyma"{
+              Text("Kıyma")
+                .padding()
+                .foregroundColor(.colorText)
+                .background(Color.colorButton)
+                .cornerRadius(10)
+              .shadow(radius: 5)
+            }
+            if selectedProduct == "Pilav"{
+              Text("Pilav")
+                .padding()
+                .foregroundColor(.colorText)
+                .background(Color.colorButton)
+                .cornerRadius(10)
+              .shadow(radius: 5)
+            }
+          }
+
 
           if Eklendi{
             VStack{
