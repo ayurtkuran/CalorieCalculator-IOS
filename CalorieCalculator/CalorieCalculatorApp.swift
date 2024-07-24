@@ -10,7 +10,7 @@ struct MyApp: App {
         if calorieNeed.isEmpty { //kalori değeri girilmediğinde ana ekrana yollar
           StartView()
         } else {
-          ContentView(calorieNeed: $calorieNeed)
+          ContentView(calorieNeed: $calorieNeed) //kalori değeri varsa ana ekrana atar 
         }
       }
     }
