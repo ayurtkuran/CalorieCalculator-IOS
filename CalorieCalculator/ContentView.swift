@@ -43,6 +43,39 @@ struct ContentView: View {
 
 
                     VStack {
+                      if hold{
+                        if selectedProduct == "Tavuk"{
+                          Text("Tavuk Göğsü")
+                            .padding()
+                            .foregroundColor(.colorText)
+                            .background(Color.colorButton)
+                            .cornerRadius(10)
+                          .shadow(radius: 5)}
+                        if selectedProduct == "Makarna"{
+                          Text("Makarna")
+                            .padding()
+                            .foregroundColor(.colorText)
+                            .background(Color.colorButton)
+                            .cornerRadius(10)
+                          .shadow(radius: 5)
+                        }
+                        if selectedProduct == "Kıyma"{
+                          Text("Kıyma")
+                            .padding()
+                            .foregroundColor(.colorText)
+                            .background(Color.colorButton)
+                            .cornerRadius(10)
+                          .shadow(radius: 5)
+                        }
+                        if selectedProduct == "Pilav"{
+                          Text("Pilav")
+                            .padding()
+                            .foregroundColor(.colorText)
+                            .background(Color.colorButton)
+                            .cornerRadius(10)
+                          .shadow(radius: 5)
+                        }
+                      }
                         Spacer().frame(height: 10)
                         HStack {
                             Spacer().frame(width: 15)
@@ -263,39 +296,7 @@ struct ContentView: View {
                     }
                 }
             }
-          if hold{
-            if selectedProduct == "Tavuk"{
-              Text("Tavuk Göğsü")
-                .padding()
-                .foregroundColor(.colorText)
-                .background(Color.colorButton)
-                .cornerRadius(10)
-              .shadow(radius: 5)}
-            if selectedProduct == "Makarna"{
-              Text("Makarna")
-                .padding()
-                .foregroundColor(.colorText)
-                .background(Color.colorButton)
-                .cornerRadius(10)
-              .shadow(radius: 5)
-            }
-            if selectedProduct == "Kıyma"{
-              Text("Kıyma")
-                .padding()
-                .foregroundColor(.colorText)
-                .background(Color.colorButton)
-                .cornerRadius(10)
-              .shadow(radius: 5)
-            }
-            if selectedProduct == "Pilav"{
-              Text("Pilav")
-                .padding()
-                .foregroundColor(.colorText)
-                .background(Color.colorButton)
-                .cornerRadius(10)
-              .shadow(radius: 5)
-            }
-          }
+         
 
 
           if Eklendi{
