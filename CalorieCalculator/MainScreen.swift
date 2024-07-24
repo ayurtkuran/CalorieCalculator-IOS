@@ -16,15 +16,15 @@ struct StartView: View {
                 VStack {
                     Text("Günlük ihtiyacınız olan kalori miktarını giriniz")
                         .padding()
-                        .background(Color.red.opacity(0.85))
-                        .foregroundColor(.white)
+                        .background(Color.colorButton)
+                        .foregroundColor(.colorText)
                         .cornerRadius(10)
 
                     TextField("", text: $calorieNeed)
                         .keyboardType(.decimalPad)
                         .padding()
                         .frame(width: 100)
-                        .background(Color.black.opacity(0.45))
+                        .background(Color.colorButton)
                         .cornerRadius(10)
                         .shadow(radius: 5)
 
@@ -48,8 +48,8 @@ struct StartView: View {
                     }) {
                         Text("Enter")
                             .padding()
-                            .foregroundColor(.white.opacity(0.85))
-                            .background(Color.black.opacity(0.45))
+                            .foregroundColor(.colorText)
+                            .background(Color.colorButton)
                             .cornerRadius(10)
                             .shadow(radius: 5)
                     }

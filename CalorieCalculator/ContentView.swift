@@ -55,6 +55,7 @@ struct ContentView: View {
                             }) {
                                 Image("Makarna")
                                     .resizable()
+                                    .background(Color.colorButton)
                                     .frame(width: 70, height: 60)
                                     .aspectRatio(contentMode: .fill)
                                     .clipped()
@@ -73,6 +74,7 @@ struct ContentView: View {
                             }) {
                                 Image("Tavuk")
                                     .resizable()
+                                    .background(Color.colorButton)
                                     .frame(width: 70, height: 60)
                                     .aspectRatio(contentMode: .fill)
                                     .clipped()
@@ -91,6 +93,7 @@ struct ContentView: View {
                             }) {
                                 Image("Kıyma")
                                     .resizable()
+                                    .background(Color.colorButton)
                                     .frame(width: 70, height: 60)
                                     .aspectRatio(contentMode: .fill)
                                     .clipped()
@@ -109,6 +112,7 @@ struct ContentView: View {
                             }) {
                                 Image("Pilav")
                                     .resizable()
+                                    .background(Color.colorButton)
                                     .frame(width: 70, height: 60)
                                     .aspectRatio(contentMode: .fill)
                                     .clipped()
@@ -126,23 +130,23 @@ struct ContentView: View {
                             VStack {
                                 Text(" ↓ Yediğiniz Miktarı Giriniz ↓ ")
                                     .padding()
-                                    .foregroundColor(.white.opacity(0.85))
-                                    .background(Color.black.opacity(0.45))
+                                    .foregroundColor(.colorText)
+                                    .background(Color.colorButton)
                                     .cornerRadius(10)
                                     .shadow(radius: 5)
 
-                                Slider(value: $sliderValue, in: 0...500, step: 50)
+                                Slider(value: $sliderValue, in: 0...800, step: 50)
                                     .padding()
-                                    .foregroundColor(.white.opacity(0.85))
-                                    .background(Color.black.opacity(0.45))
+                                    .foregroundColor(.colorText)
+                                    .background(Color.colorButton)
                                     .cornerRadius(10)
                                     .shadow(radius: 5)
-                                    .accentColor(.red)
+                                    .accentColor(.colorText)
 
                                 Text("Gram \(sliderValue, specifier: "%.0f")")
                                     .padding()
-                                    .foregroundColor(.white.opacity(0.85))
-                                    .background(Color.black.opacity(0.45))
+                                    .foregroundColor(.colorText)
+                                    .background(Color.colorButton)
                                     .cornerRadius(10)
                                     .shadow(radius: 5)
 
@@ -223,8 +227,8 @@ struct ContentView: View {
                         if totalMakarna > 0 {
                             Text("Makarna \(totalMakarnagr) gr \(totalMakarna, specifier: "%.0f kcal")")
                                 .padding()
-                                .foregroundColor(.white.opacity(0.85))
-                                .background(Color.black.opacity(0.45))
+                                .foregroundColor(.colorText)
+                                .background(Color.colorButton)
                                 .cornerRadius(10)
                                 .shadow(radius: 5)
                         }
@@ -232,8 +236,8 @@ struct ContentView: View {
                         if totalTavuk > 0 {
                             Text("Tavuk \(totalTavukgr) gr \(totalTavuk, specifier: "%.0f kcal")")
                                 .padding()
-                                .foregroundColor(.white.opacity(0.85))
-                                .background(Color.black.opacity(0.45))
+                                .foregroundColor(.colorText)
+                                .background(Color.colorButton)
                                 .cornerRadius(10)
                                 .shadow(radius: 5)
                         }
@@ -241,16 +245,17 @@ struct ContentView: View {
                         if totalKiyma > 0 {
                             Text("Kıyma \(totalKıymagr) gr \(totalKiyma, specifier: "%.0f kcal")")
                                 .padding()
-                                .foregroundColor(.white.opacity(0.85))
-                                .background(Color.black.opacity(0.45))                            .cornerRadius(10)
+                                .foregroundColor(.colorText)
+                                .background(Color.colorButton)
+                                .cornerRadius(10)
                                 .shadow(radius: 5)
                         }
 
                         if totalPilav > 0 {
                             Text("Pilav \(totalPilavgr) gr  \(totalPilav, specifier: "%.0f kcal")")
                                 .padding()
-                                .foregroundColor(.white.opacity(0.85))
-                                .background(Color.black.opacity(0.45))
+                                .foregroundColor(.colorText)
+                                .background(Color.colorButton)
                                 .cornerRadius(10)
                                 .shadow(radius: 5)
                         }
@@ -259,25 +264,27 @@ struct ContentView: View {
 
                         Text("Toplam Kalori: \(totalMakarna + totalKiyma + totalTavuk + totalPilav, specifier: "%.0f") kcal / \(Double(calorieNeed) ?? 0.0, specifier: "%.0f") kcal")
                             .padding()
-                            .background(Color.red.opacity(0.9))
-                            .foregroundColor(.white)
+                            .background(Color.colorButton)
+                            .foregroundColor(.colorText)
                             .cornerRadius(10)
                       Spacer()
                         .frame(height: 20)
-                                          Text("Toplam Protein: \(totalProtein,specifier: "%.1f")gr")
+                        Text("Toplam Protein: \(totalProtein,specifier: "%.1f")gr")
                         .padding()
-                        .background(Color.red.opacity(0.9))
-                        .foregroundColor(.white)
+                        .background(Color.colorButton)
+                        .foregroundColor(.colorText)
                         .cornerRadius(10)
                     }
+
                     .frame(width: 500, height: UIScreen.main.bounds.height / 2)
-                    .background(Color.gray.opacity(0.5))
+                    .background(Color.gray.opacity(0.65))
                     .cornerRadius(10)
                     .padding()
                     .transition(.move(edge: .leading)) // Animasyonlu geçiş
 
 
                     Spacer()
+
                 }
             }
 
@@ -310,8 +317,8 @@ struct ContentView: View {
                             Text("Sıfırla")
                                 .padding()
                                 .frame(width: 170)
-                                .foregroundColor(.white.opacity(0.85))
-                                .background(Color.black.opacity(0.45))
+                                .foregroundColor(.colorText)
+                                .background(Color.colorButton)
                                 .cornerRadius(10)
                                 .shadow(radius: 5)
                         }
@@ -323,8 +330,8 @@ struct ContentView: View {
                             Text("Menüyü Aç/Kapat")
                                 .padding()
                                 .frame(width: 170)
-                                .foregroundColor(.white.opacity(0.85))
-                                .background(Color.black.opacity(0.45))
+                                .foregroundColor(.colorText)
+                                .background(Color.colorButton)
                                 .cornerRadius(10)
                                 .shadow(radius: 5)
                         }
