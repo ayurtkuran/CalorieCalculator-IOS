@@ -14,6 +14,19 @@
 		47D6E3812C4FE86D00DC79C1 /* MainScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47D6E3802C4FE86D00DC79C1 /* MainScreen.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		472F908E2C523B250011C82D /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		47D6E36D2C4FE7DA00DC79C1 /* CalorieCalculator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CalorieCalculator.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		47D6E3702C4FE7DA00DC79C1 /* CalorieCalculatorApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalorieCalculatorApp.swift; sourceTree = "<group>"; };
@@ -80,6 +93,7 @@
 				47D6E3692C4FE7DA00DC79C1 /* Sources */,
 				47D6E36A2C4FE7DA00DC79C1 /* Frameworks */,
 				47D6E36B2C4FE7DA00DC79C1 /* Resources */,
+				472F908E2C523B250011C82D /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);

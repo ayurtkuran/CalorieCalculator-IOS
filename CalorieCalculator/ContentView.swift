@@ -40,7 +40,7 @@ struct ContentView: View {
                         .ignoresSafeArea()
                         .scaledToFill()
                         .opacity(0.8)
-
+                        
 
                     VStack {
                       if hold{
