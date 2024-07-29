@@ -3,9 +3,9 @@ import SwiftUI
 struct FoodItem: Identifiable, Codable {
     let id = UUID()
     let name: String
-    let calories: Double
-    let protein: Double
-    let amount: Double
+    var calories: Double
+    var protein: Double
+    var amount: Double
 }
 
 struct ContentView: View {
@@ -21,6 +21,7 @@ struct ContentView: View {
     @State private var searchQuery: String = ""
     @State private var showTotalsMenu: Bool = false
     @State private var foodItems: [FoodItem] = []
+    @State private var isKeyboardVisible: Bool = false // Klavye durumu için state değişkeni
     @Environment(\.dismiss) var dismiss
 
     init(calorieNeed: Binding<String>) {
@@ -101,11 +102,19 @@ struct ContentView: View {
         let totalItemCalories = sliderValue * caloriesPerGram
         let totalItemProtein = sliderValue * proteinPerGram
 
+        if let index = foodItems.firstIndex(where: { $0.name == product }) {
+            // Mevcut ürün güncelleniyor
+            foodItems[index].calories += totalItemCalories
+            foodItems[index].protein += totalItemProtein
+            foodItems[index].amount += sliderValue
+        } else {
+            // Yeni ürün ekleniyor
+            let foodItem = FoodItem(name: product, calories: totalItemCalories, protein: totalItemProtein, amount: sliderValue)
+            foodItems.append(foodItem)
+        }
+
         totalCalories += totalItemCalories
         totalProtein += totalItemProtein
-
-        let foodItem = FoodItem(name: product, calories: totalItemCalories, protein: totalItemProtein, amount: sliderValue)
-        foodItems.append(foodItem)
 
         saveTotals()
         self.showInput = false
@@ -120,6 +129,20 @@ struct ContentView: View {
         }
     }
 
+    func hideKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
+
+    func subscribeToKeyboardNotifications() {
+        NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: .main) { _ in
+            self.isKeyboardVisible = true
+        }
+
+        NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: .main) { _ in
+            self.isKeyboardVisible = false
+        }
+    }
+
     var body: some View {
         ZStack {
             NavigationView {
@@ -129,29 +152,23 @@ struct ContentView: View {
                         .ignoresSafeArea()
                         .scaledToFill()
                         .opacity(0.8)
+                        .onTapGesture {
+                            self.hideKeyboard()
+                        }
 
                     VStack {
-                        TextField("Search Food", text: $searchQuery)
+                        Spacer()
+                            .frame(height: 100)
+                        TextField("Search Food", text: $searchQuery, onCommit: {
+                            fetchNutritionData(for: searchQuery)
+                        })
                         .padding()
                         .frame(width: 170)
                         .foregroundColor(.colorText)
                         .background(Color.colorButton)
                         .cornerRadius(10)
                         .shadow(radius: 5)
-
-
-                        Button(action: {
-                            fetchNutritionData(for: searchQuery)
-                        }) {
-                            Text("Search and Add")
-                            .padding()
-                            .frame(width: 170)
-                            .foregroundColor(.colorText)
-                            .background(Color.colorButton)
-                            .cornerRadius(10)
-                            .shadow(radius: 5)
-                        }
-                        .padding(.bottom)
+                        .keyboardType(.webSearch)
 
                         Spacer()
 
@@ -194,8 +211,8 @@ struct ContentView: View {
                         }
 
                         Spacer()
-                      Spacer()
-                      Spacer()
+                        Spacer()
+                        Spacer()
                     }
                 }
             }
@@ -214,44 +231,44 @@ struct ContentView: View {
             }
 
             if showTotalsMenu {
-                HStack {
-                    VStack(alignment: .center) {
-                        ForEach(foodItems) { item in
-                            Text("\(item.name) → \(item.calories, specifier: "%.0f") kcal")
-                                .padding()
-                                .foregroundColor(.colorText)
-                                .background(Color.colorButton)
-                                .cornerRadius(10)
-                                .shadow(radius: 5)
-                        }
+              HStack {
+                VStack(alignment: .center) {
+                  ForEach(foodItems) { item in
+                    Text("\(item.name) → \(item.calories, specifier: "%.0f") kcal")
+                      .padding()
+                      .foregroundColor(.colorText)
+                      .background(Color.colorButton)
+                      .cornerRadius(10)
+                      .shadow(radius: 5)
+                  }
 
-                        Spacer()
+                  Spacer()
 
-                        Text("Total Calories: \(totalCalories, specifier: "%.0f") kcal")
-                            .padding()
-                            .background(Color.colorButton)
-                            .foregroundColor(.colorText)
-                            .cornerRadius(10)
-                        Spacer()
-                            .frame(height: 20)
-                        Text("Total Protein: \(totalProtein, specifier: "%.1f") gr")
-                            .padding()
-                            .background(Color.colorButton)
-                            .foregroundColor(.colorText)
-                            .cornerRadius(10)
-                    }
-                    .frame(width: 500, height: UIScreen.main.bounds.height / 2)
-                    .background(Color.gray.opacity(0.65))
-                    .cornerRadius(10)
+                  Text("Total Calories: \(totalCalories, specifier: "%.0f") kcal")
                     .padding()
-                    .transition(.move(edge: .leading))
-
-                    Spacer()
+                    .background(Color.colorButton)
+                    .foregroundColor(.colorText)
+                    .cornerRadius(10)
+                  Spacer()
+                    .frame(height: 20)
+                  Text("Total Protein: \(totalProtein, specifier: "%.1f") gr")
+                    .padding()
+                    .background(Color.colorButton)
+                    .foregroundColor(.colorText)
+                    .cornerRadius(10)
                 }
-            }
-
-            VStack {
+                .frame(width: 500, height: UIScreen.main.bounds.height / 2)
+                .background(Color.gray.opacity(0.65))
+                .cornerRadius(10)
+                .padding()
+                .transition(.move(edge: .leading))
                 Spacer()
+            }
+        }
+
+        VStack {
+            Spacer()
+            if !isKeyboardVisible { // Klavye açıkken butonları gizle
                 VStack {
                     HStack {
                         Button(action: {
@@ -288,17 +305,18 @@ struct ContentView: View {
                                 .background(Color.colorButton)
                                 .cornerRadius(10)
                                 .shadow(radius: 5)
-                                }
-                                }
-                                .padding()
-                                }
-                                }
-                                }
-                                }
-                                }
+                        }
+                    }
+                    .padding()
+                }
+            }
+        }
+    }
+    .onAppear(perform: subscribeToKeyboardNotifications) // Klavye bildirimlerine abone ol
+}}
 
-                                struct ContentView_Previews: PreviewProvider {
-                                static var previews: some View {
-                                ContentView(calorieNeed: .constant(""))
-                                }
-                                }
+struct ContentView_Previews: PreviewProvider {
+static var previews: some View {
+ContentView(calorieNeed: .constant(""))
+}
+}
