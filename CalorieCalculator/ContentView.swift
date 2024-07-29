@@ -1,484 +1,304 @@
 import SwiftUI
 
+struct FoodItem: Identifiable, Codable {
+    let id = UUID()
+    let name: String
+    let calories: Double
+    let protein: Double
+    let amount: Double
+}
+
 struct ContentView: View {
-  @Binding var calorieNeed: String //variable diğer dosyaya geçer
-  @State private var hold: Bool = false
-  @State private var Eklendi: Bool = false
-  @State private var showInput: Bool = false
-  @State private var sliderValue: Double = 250.0
-  @State private var totalMakarna: Double = UserDefaults.standard.double(forKey: "totalMakarna")
-  @State private var totalTavuk: Double = UserDefaults.standard.double(forKey: "totalTavuk")
-  @State private var totalKiyma: Double = UserDefaults.standard.double(forKey: "totalKiyma")
-  @State private var totalPilav: Double = UserDefaults.standard.double(forKey: "totalPilav")
-  @State private var totalProtein: Double = UserDefaults.standard.double(forKey: "totalprotein")
+    @Binding var calorieNeed: String
+    @State private var Eklendi: Bool = false
+    @State private var showInput: Bool = false
+    @State private var sliderValue: Double = 250.0
+    @State private var totalCalories: Double = UserDefaults.standard.double(forKey: "totalCalories")
+    @State private var totalProtein: Double = UserDefaults.standard.double(forKey: "totalProtein")
+    @State private var selectedProduct: String? = nil
+    @State private var fetchedCalories: Double = 0.0
+    @State private var fetchedProtein: Double = 0.0
+    @State private var searchQuery: String = ""
+    @State private var showTotalsMenu: Bool = false
+    @State private var foodItems: [FoodItem] = []
+    @Environment(\.dismiss) var dismiss
 
-  @State private var totalMakarnagr: Int = UserDefaults.standard.integer(forKey: "totalMakarnaGR")
-  @State private var totalTavukgr: Int = UserDefaults.standard.integer(forKey: "totalTavukGR")
-  @State private var totalKıymagr: Int = UserDefaults.standard.integer(forKey: "totalKıymaGR")
-  @State private var totalPilavgr: Int = UserDefaults.standard.integer(forKey: "totalPilavGR")
+    init(calorieNeed: Binding<String>) {
+        self._calorieNeed = calorieNeed
+        if let savedFoodItems = UserDefaults.standard.data(forKey: "foodItems") {
+            if let decodedFoodItems = try? JSONDecoder().decode([FoodItem].self, from: savedFoodItems) {
+                self._foodItems = State(initialValue: decodedFoodItems)
+                self._totalCalories = State(initialValue: decodedFoodItems.reduce(0) { $0 + $1.calories })
+                self._totalProtein = State(initialValue: decodedFoodItems.reduce(0) { $0 + $1.protein })
+            }
+        }
+    }
 
-  @State private var selectedProduct: String? = nil
-  @State private var showTotalsMenu: Bool = false
-  @Environment(\.dismiss) var dismiss
+    func saveTotals() {
+        UserDefaults.standard.set(totalCalories, forKey: "totalCalories")
+        UserDefaults.standard.set(totalProtein, forKey: "totalProtein")
+        if let encoded = try? JSONEncoder().encode(foodItems) {
+            UserDefaults.standard.set(encoded, forKey: "foodItems")
+        }
+    }
 
-  @State private var fetchedCalories: Double = 0.0
-  @State private var fetchedProtein: Double = 0.0
+    func fetchNutritionData(for food: String) {
+        let appId = "af563563"
+        let appKey = "f6b895fdaedc5ddc85b65c721cbccfb0"
+        let urlString = "https://trackapi.nutritionix.com/v2/natural/nutrients"
 
-  func saveTotals() {
-      UserDefaults.standard.set(totalMakarna, forKey: "totalMakarna") //usera özel kaydetme
-      UserDefaults.standard.set(totalTavuk, forKey: "totalTavuk")
-      UserDefaults.standard.set(totalKiyma, forKey: "totalKiyma")
-      UserDefaults.standard.set(totalPilav, forKey: "totalPilav")
-      UserDefaults.standard.set(totalProtein, forKey: "totalprotein")
-  }
+        guard let url = URL(string: urlString) else {
+            print("Invalid URL")
+            return
+        }
 
-  func fetchNutritionData(for food: String) {
-      let appId = "af563563"       // Nutritionix API'den aldığınız Application ID
-      let appKey = "f6b895fdaedc5ddc85b65c721cbccfb0"     // Nutritionix API'den aldığınız Application Key
-      let urlString = "https://trackapi.nutritionix.com/v2/natural/nutrients"
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.addValue(appId, forHTTPHeaderField: "x-app-id")
+        request.addValue(appKey, forHTTPHeaderField: "x-app-key")
 
-      guard let url = URL(string: urlString) else {
-          print("Invalid URL")
-          return
-      }
+        let json: [String: Any] = ["query": food]
+        let jsonData = try? JSONSerialization.data(withJSONObject: json)
 
-      var request = URLRequest(url: url)
-      request.httpMethod = "POST"
-      request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-      request.addValue(appId, forHTTPHeaderField: "x-app-id")
-      request.addValue(appKey, forHTTPHeaderField: "x-app-key")
+        request.httpBody = jsonData
 
-      let json: [String: Any] = ["query": food]
-      let jsonData = try? JSONSerialization.data(withJSONObject: json)
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            guard let data = data, error == nil else {
+                print("Error: \(error?.localizedDescription ?? "Unknown error")")
+                return
+            }
 
-      request.httpBody = jsonData
+            do {
+                if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
+                   let foods = json["foods"] as? [[String: Any]] {
+                    for food in foods {
+                        if let calories = food["nf_calories"] as? Double,
+                           let protein = food["nf_protein"] as? Double {
+                            DispatchQueue.main.async {
+                                self.fetchedCalories = calories
+                                self.fetchedProtein = protein
+                                self.selectedProduct = food["food_name"] as? String
+                                self.showInput = true
+                            }
+                        }
+                    }
+                }
+            } catch let error {
+                print("Failed to parse JSON: \(error.localizedDescription)")
+            }
+        }
 
-      let task = URLSession.shared.dataTask(with: request) { data, response, error in
-          guard let data = data, error == nil else {
-              print("Error: \(error?.localizedDescription ?? "Unknown error")")
-              return
-          }
+        task.resume()
+    }
 
-          do {
-              if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
-                 let foods = json["foods"] as? [[String: Any]] {
-                  for food in foods {
-                      if let calories = food["nf_calories"] as? Double,
-                         let protein = food["nf_protein"] as? Double {
-                          DispatchQueue.main.async {
-                              self.fetchedCalories = calories
-                              self.fetchedProtein = protein
-                          }
-                      }
-                  }
-              }
-          } catch let error {
-              print("Failed to parse JSON: \(error.localizedDescription)")
-          }
-      }
+    func addFoodToMenu() {
+        guard let product = selectedProduct else { return }
 
-      task.resume()
-  }
+        let caloriesPerGram = fetchedCalories / 100
+        let proteinPerGram = fetchedProtein / 100
 
-  var body: some View {
-      ZStack {
-          NavigationView {
-              ZStack {
-                  Image("Background")
-                      .resizable()
-                      .ignoresSafeArea()
-                      .scaledToFill()
-                      .opacity(0.8)
+        let totalItemCalories = sliderValue * caloriesPerGram
+        let totalItemProtein = sliderValue * proteinPerGram
 
-                  VStack {
-                      if hold {
-                          if selectedProduct == "Tavuk" {
-                              Text("Tavuk Göğsü")
-                                  .padding()
-                                  .foregroundColor(.colorText)
-                                  .background(Color.colorButton)
-                                  .cornerRadius(10)
-                                  .shadow(radius: 5)
-                          }
-                          if selectedProduct == "Makarna" {
-                              Text("Makarna")
-                                  .padding()
-                                  .foregroundColor(.colorText)
-                                  .background(Color.colorButton)
-                                  .cornerRadius(10)
-                                  .shadow(radius: 5)
-                          }
-                          if selectedProduct == "Kıyma" {
-                              Text("Kıyma")
-                                  .padding()
-                                  .foregroundColor(.colorText)
-                                  .background(Color.colorButton)
-                                  .cornerRadius(10)
-                                  .shadow(radius: 5)
-                          }
-                          if selectedProduct == "Pilav" {
-                              Text("Pilav")
-                                  .padding()
-                                  .foregroundColor(.colorText)
-                                  .background(Color.colorButton)
-                                  .cornerRadius(10)
-                                  .shadow(radius: 5)
-                          }
-                      }
-                      Spacer().frame(height: 10)
-                      HStack {
-                          Spacer().frame(width: 15)
-                          Button(action: {
-                              if selectedProduct == "Makarna" {
-                                  self.showInput.toggle()
-                              } else {
-                                  self.showInput = true
-                                  self.selectedProduct = "Makarna"
-                                  fetchNutritionData(for: "pasta") // "Makarna" için besin bilgilerini çekme
-                              }
-                          }) {
-                              Image("Makarna")
-                                  .resizable()
-                                  .background(Color.colorButton)
-                                  .frame(width: 70, height: 60)
-                                  .aspectRatio(contentMode: .fill)
-                                  .clipped()
-                                  .shadow(radius: 10)
-                                  .cornerRadius(10)
-                          }
-                          .simultaneousGesture(      //Uzun Süre Basılı Tutma Action
-                            LongPressGesture(minimumDuration: 0.5)
-                                            .onEnded { _ in
-                                                withAnimation {
-                                                    self.hold = true
-                                                  self.selectedProduct = "Makarna"
-                                                }
-                                                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                                                    withAnimation {
-                                                        self.hold = false
-                                                    }
-                                                }
-                                            }
-                                    )
-                          Spacer().frame(width: 20)
+        totalCalories += totalItemCalories
+        totalProtein += totalItemProtein
 
-                          Button(action: {
-                              if selectedProduct == "Tavuk" {
-                                  self.showInput.toggle()
-                              } else {
-                                  self.showInput = true
-                                  self.selectedProduct = "Tavuk"
-                                  fetchNutritionData(for: "chicken breast") // "Tavuk" için besin bilgilerini çekme
-                              }
-                          }) {
-                              Image("Tavuk")
-                                  .resizable()
-                                  .background(Color.colorButton)
-                                  .frame(width: 70, height: 60)
-                                  .aspectRatio(contentMode: .fill)
-                                  .clipped()
-                                  .shadow(radius: 10)
-                                  .cornerRadius(10)
-                          }
-                          .simultaneousGesture(      //Uzun Süre Basılı Tutma Action
-                            LongPressGesture(minimumDuration: 0.5)
-                                            .onEnded { _ in
-                                                withAnimation {
-                                                    self.hold = true
-                                                  self.selectedProduct = "Tavuk"
-                                                }
-                                                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                                                    withAnimation {
-                                                        self.hold = false
-                                                    }
-                                                }
-                                            }
-                                    )
+        let foodItem = FoodItem(name: product, calories: totalItemCalories, protein: totalItemProtein, amount: sliderValue)
+        foodItems.append(foodItem)
 
-                          Spacer().frame(width: 20)
+        saveTotals()
+        self.showInput = false
+        withAnimation {
+            self.Eklendi.toggle()
+        }
 
-                          Button(action: {
-                              if selectedProduct == "Kıyma" {
-                                  self.showInput.toggle()
-                              } else {
-                                  self.showInput = true
-                                  self.selectedProduct = "Kıyma"
-                                  fetchNutritionData(for: "ground beef") // "Kıyma" için besin bilgilerini çekme
-                              }
-                          }) {
-                              Image("Kıyma")
-                                  .resizable()
-                                  .background(Color.colorButton)
-                                  .frame(width: 70, height: 60)
-                                  .aspectRatio(contentMode: .fill)
-                                  .clipped()
-                                  .shadow(radius: 10)
-                                  .cornerRadius(10)
-                          }
-                          .simultaneousGesture(      //Uzun Süre Basılı Tutma Action
-                            LongPressGesture(minimumDuration: 0.5)
-                                            .onEnded { _ in
-                                                withAnimation {
-                                                    self.hold = true
-                                                  self.selectedProduct = "Kıyma"
-                                                }
-                                                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                                                    withAnimation {
-                                                        self.hold = false
-                                                    }
-                                                }
-                                            }
-                                    )
-                          Spacer().frame(width: 20)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            withAnimation {
+                self.Eklendi.toggle()
+            }
+        }
+    }
 
-                          Button(action: {
-                              if selectedProduct == "Pilav" {
-                                  self.showInput.toggle()
-                              } else {
-                                  self.showInput = true
-                                  self.selectedProduct = "Pilav"
-                                  fetchNutritionData(for: "rice") // "Pilav” için besin bilgilerini çekme
-                              }
-                              }) {
-                              Image("Pilav")
-                              .resizable()
-                              .background(Color.colorButton)
-                              .frame(width: 70, height: 60)
-                              .aspectRatio(contentMode: .fill)
-                              .clipped()
-                              .shadow(radius: 10)
-                              .cornerRadius(10)
-                              }
-                              .simultaneousGesture(      //Uzun Süre Basılı Tutma Action
-                              LongPressGesture(minimumDuration: 0.5)                                        
-                                .onEnded { _ in
-                                withAnimation {
-                                    self.hold = true
-                                  self.selectedProduct = "Pilav"
-                                }
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                                    withAnimation {
-                                        self.hold = false
-                                    }
+    var body: some View {
+        ZStack {
+            NavigationView {
+                ZStack {
+                    Image("Background")
+                        .resizable()
+                        .ignoresSafeArea()
+                        .scaledToFill()
+                        .opacity(0.8)
+
+                    VStack {
+                        TextField("Search Food", text: $searchQuery)
+                        .padding()
+                        .frame(width: 170)
+                        .foregroundColor(.colorText)
+                        .background(Color.colorButton)
+                        .cornerRadius(10)
+                        .shadow(radius: 5)
+
+
+                        Button(action: {
+                            fetchNutritionData(for: searchQuery)
+                        }) {
+                            Text("Search and Add")
+                            .padding()
+                            .frame(width: 170)
+                            .foregroundColor(.colorText)
+                            .background(Color.colorButton)
+                            .cornerRadius(10)
+                            .shadow(radius: 5)
+                        }
+                        .padding(.bottom)
+
+                        Spacer()
+
+                        if showInput {
+                            VStack {
+                                Text("↓ Enter the Amount You Ate ↓")
+                                    .padding()
+                                    .foregroundColor(.colorText)
+                                    .background(Color.colorButton)
+                                    .cornerRadius(10)
+                                    .shadow(radius: 5)
+
+                                Slider(value: $sliderValue, in: 0...800, step: 50)
+                                    .padding()
+                                    .foregroundColor(.colorText)
+                                    .background(Color.colorButton)
+                                    .cornerRadius(10)
+                                    .shadow(radius: 5)
+                                    .accentColor(.colorText)
+
+                                Text("Grams \(sliderValue, specifier: "%.0f")")
+                                    .padding()
+                                    .foregroundColor(.colorText)
+                                    .background(Color.colorButton)
+                                    .cornerRadius(10)
+                                    .shadow(radius: 5)
+
+                                Button(action: {
+                                    addFoodToMenu()
+                                }) {
+                                    Text("Add")
+                                        .padding()
+                                        .foregroundColor(.white.opacity(0.85))
+                                        .background(Color.green.opacity(0.95))
+                                        .cornerRadius(10)
                                 }
                             }
-                    )
-          Spacer().frame(width: 15)
-      }
-      .padding()
-      .frame(maxWidth: .infinity, alignment: .top)
+                            .frame(maxWidth: 300)
+                            .padding()
+                        }
 
-      Spacer()
+                        Spacer()
+                      Spacer()
+                      Spacer()
+                    }
+                }
+            }
 
-      if showInput {
-          VStack {
-              Text(" ↓ Yediğiniz Miktarı Giriniz ↓ ")
-                  .padding()
-                  .foregroundColor(.colorText)
-                  .background(Color.colorButton)
-                  .cornerRadius(10)
-                  .shadow(radius: 5)
+            if Eklendi {
+                VStack {
+                    Text("Item added successfully")
+                        .padding()
+                        .foregroundColor(.white)
+                        .background(Color.green.opacity(0.95))
+                        .cornerRadius(10)
+                        .shadow(radius: 5)
+                    Spacer()
+                        .frame(height: 100)
+                }
+            }
 
-              Slider(value: $sliderValue, in: 0...800, step: 50)
-                  .padding()
-                  .foregroundColor(.colorText)
-                  .background(Color.colorButton)
-                  .cornerRadius(10)
-                  .shadow(radius: 5)
-                  .accentColor(.colorText)
+            if showTotalsMenu {
+                HStack {
+                    VStack(alignment: .center) {
+                        ForEach(foodItems) { item in
+                            Text("\(item.name) → \(item.calories, specifier: "%.0f") kcal")
+                                .padding()
+                                .foregroundColor(.colorText)
+                                .background(Color.colorButton)
+                                .cornerRadius(10)
+                                .shadow(radius: 5)
+                        }
 
-              Text("Gram \(sliderValue, specifier: "%.0f")")
-                  .padding()
-                  .foregroundColor(.colorText)
-                  .background(Color.colorButton)
-                  .cornerRadius(10)
-                  .shadow(radius: 5)
+                        Spacer()
 
-              Button(action: {
-                  if let product = selectedProduct {
-                      let caloriesPerGram = fetchedCalories / 100
-                      let proteinPerGram = fetchedProtein / 100
-                      switch product {
-                      case "Makarna":
-                          totalMakarnagr += Int(sliderValue)
-                          totalMakarna += sliderValue * caloriesPerGram
-                          totalProtein += sliderValue * proteinPerGram
-                      case "Tavuk":
-                          totalTavuk += sliderValue * caloriesPerGram
-                          totalTavukgr += Int(sliderValue)
-                          totalProtein += sliderValue * proteinPerGram
-                      case "Kıyma":
-                          totalKiyma += sliderValue * caloriesPerGram
-                          totalKıymagr += Int(sliderValue)
-                          totalProtein += sliderValue * proteinPerGram
-                      case "Pilav":
-                          totalPilav += sliderValue * caloriesPerGram
-                          totalPilavgr += Int(sliderValue)
-                          totalProtein += sliderValue * proteinPerGram
-                      default:
-                          break
-                      }
-                  }
-                  saveTotals()
-                  self.showInput = false
-                  withAnimation {
-                      self.Eklendi.toggle()
-                  }
+                        Text("Total Calories: \(totalCalories, specifier: "%.0f") kcal")
+                            .padding()
+                            .background(Color.colorButton)
+                            .foregroundColor(.colorText)
+                            .cornerRadius(10)
+                        Spacer()
+                            .frame(height: 20)
+                        Text("Total Protein: \(totalProtein, specifier: "%.1f") gr")
+                            .padding()
+                            .background(Color.colorButton)
+                            .foregroundColor(.colorText)
+                            .cornerRadius(10)
+                    }
+                    .frame(width: 500, height: UIScreen.main.bounds.height / 2)
+                    .background(Color.gray.opacity(0.65))
+                    .cornerRadius(10)
+                    .padding()
+                    .transition(.move(edge: .leading))
 
-                  DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                      withAnimation {
-                          self.Eklendi.toggle()
-                      }
-                  }
-              }) {
-                  Text("Ekle")
-                      .padding()
-                      .foregroundColor(.white.opacity(0.85))
-                      .background(Color.green.opacity(0.95))
-                      .cornerRadius(10)
-              }
-          }
-          .frame(maxWidth: 300)
-          .padding()
-      }
+                    Spacer()
+                }
+            }
 
-      Spacer()
-  }
-}
-}
+            VStack {
+                Spacer()
+                VStack {
+                    HStack {
+                        Button(action: {
+                            withAnimation {
+                                showInput = false
+                                sliderValue = 250.0
+                                totalCalories = 0.0
+                                totalProtein = 0.0
+                                selectedProduct = nil
+                                calorieNeed = ""
+                                foodItems.removeAll()
+                                UserDefaults.standard.set(calorieNeed, forKey: "calorieNeed")
+                                saveTotals()
+                                dismiss()
+                            }
+                        }) {
+                            Text("Reset")
+                                .padding()
+                                .frame(width: 170)
+                                .foregroundColor(.colorText)
+                                .background(Color.colorButton)
+                                .cornerRadius(10)
+                                .shadow(radius: 5)
+                        }
+                        Button(action: {
+                            withAnimation {
+                                showTotalsMenu.toggle()
+                            }
+                        }) {
+                            Text("Toggle Menu")
+                                .padding()
+                                .frame(width: 170)
+                                .foregroundColor(.colorText)
+                                .background(Color.colorButton)
+                                .cornerRadius(10)
+                                .shadow(radius: 5)
+                                }
+                                }
+                                .padding()
+                                }
+                                }
+                                }
+                                }
+                                }
 
-if Eklendi {
-VStack {
-  Text("Ürün başarıyla eklendi")
-      .padding()
-      .foregroundColor(.white)
-      .background(Color.green.opacity(0.95))
-      .cornerRadius(10)
-      .shadow(radius: 5)
-  Spacer()
-      .frame(height: 100)
-}
-}
-
-if showTotalsMenu {
-HStack {
-  VStack(alignment: .center) {
-      if totalMakarna > 0 {
-          Text("Makarna \(totalMakarnagr) gr \(totalMakarna, specifier: "%.0f kcal")")
-              .padding()
-              .foregroundColor(.colorText)
-              .background(Color.colorButton)
-              .cornerRadius(10)
-              .shadow(radius: 5)
-      }
-
-      if totalTavuk > 0 {
-          Text("Tavuk \(totalTavukgr) gr \(totalTavuk, specifier: "%.0f kcal")")
-              .padding()
-              .foregroundColor(.colorText)
-              .background(Color.colorButton)
-              .cornerRadius(10)
-              .shadow(radius: 5)
-      }
-
-      if totalKiyma > 0 {
-          Text("Kıyma \(totalKıymagr) gr \(totalKiyma, specifier: "%.0f kcal")")
-              .padding()
-              .foregroundColor(.colorText)
-              .background(Color.colorButton)
-              .cornerRadius(10)
-              .shadow(radius: 5)
-      }
-
-      if totalPilav > 0 {
-          Text("Pilav \(totalPilavgr) gr  \(totalPilav, specifier: "%.0f kcal")")
-              .padding()
-              .foregroundColor(.colorText)
-              .background(Color.colorButton)
-              .cornerRadius(10)
-              .shadow(radius: 5)
-      }
-
-      Spacer()
-
-      Text("Toplam Kalori: \(totalMakarna + totalKiyma + totalTavuk + totalPilav, specifier: "%.0f") kcal / \(Double(calorieNeed) ?? 0.0, specifier: "%.0f") kcal")
-          .padding()
-          .background(Color.colorButton)
-          .foregroundColor(.colorText)
-          .cornerRadius(10)
-      Spacer()
-          .frame(height: 20)
-      Text("Toplam Protein: \(totalProtein, specifier: "%.1f")gr")
-          .padding()
-          .background(Color.colorButton)
-          .foregroundColor(.colorText)
-          .cornerRadius(10)
-  }
-  .frame(width: 500, height: UIScreen.main.bounds.height / 2)
-  .background(Color.gray.opacity(0.65))
-  .cornerRadius(10)
-  .padding()
-  .transition(.move(edge: .leading)) // Animasyonlu geçiş
-
-  Spacer()
-}
-}
-
-VStack {
-Spacer()
-VStack {
-  HStack {
-      Button(action: {
-          withAnimation {
-              showInput = false
-              sliderValue = 250.0
-              totalMakarna = 0.0
-              totalTavuk = 0.0
-              totalKiyma = 0.0
-              totalPilav = 0.0
-              selectedProduct = nil
-              showTotalsMenu = false
-              totalMakarnagr = 0
-              totalKıymagr = 0
-              totalPilavgr = 0
-              totalTavukgr = 0
-              calorieNeed = ""
-              UserDefaults.standard.set(calorieNeed, forKey: "calorieNeed") //UserDefaults güncellenir her sayfada geçerli!!
-              totalProtein = 0
-              saveTotals()
-              dismiss()
-          }
-      }) {
-          Text("Sıfırla")
-              .padding()
-              .frame(width: 170)
-              .foregroundColor(.colorText)
-              .background(Color.colorButton)
-              .cornerRadius(10)
-              .shadow(radius: 5)
-      }
-      Button(action: {
-          withAnimation {
-              showTotalsMenu.toggle()
-          }
-      }) {
-          Text("Menüyü Aç/Kapat")
-              .padding()
-              .frame(width: 170)
-              .foregroundColor(.colorText)
-              .background(Color.colorButton)
-              .cornerRadius(10)
-              .shadow(radius: 5)
-      }
-  }
-  .padding()
-}
-}
-}}
-}
-
-struct ContentView_Previews: PreviewProvider {
-static var previews: some View {
-ContentView(calorieNeed: .constant(""))
-}
-}
+                                struct ContentView_Previews: PreviewProvider {
+                                static var previews: some View {
+                                ContentView(calorieNeed: .constant(""))
+                                }
+                                }

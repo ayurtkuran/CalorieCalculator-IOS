@@ -14,7 +14,7 @@ struct StartView: View {
                     .ignoresSafeArea()
                     .opacity(0.8)
                 VStack {
-                    Text("Günlük ihtiyacınız olan kalori miktarını giriniz")
+                    Text("Please enter your daily calorie requirement")
                         .padding()
                         .background(Color.colorButton)
                         .foregroundColor(.colorText)
@@ -29,7 +29,7 @@ struct StartView: View {
                         .shadow(radius: 5)
 
                     if showAlert {
-                        Text("Lütfen geçerli bir kalori değeri giriniz")
+                        Text("Please enter a valid calorie value")
                             .foregroundColor(.red)
                             .background(Color.black.opacity(0.45))
                             .cornerRadius(10)
