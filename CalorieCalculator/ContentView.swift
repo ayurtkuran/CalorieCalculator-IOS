@@ -20,7 +20,7 @@ struct ContentView: View {
   @State private var fetchedCalories: Double = 0.0
   @State private var fetchedProtein: Double = 0.0
   @State private var searchQuery: String = ""
-  @State private var showTotalsMenu: Bool = false
+  @State private var showTotalsMenu: Bool = false //Menu durumu için state değişkeni
   @State private var foodItems: [FoodItem] = []
   @State private var isKeyboardVisible: Bool = false // Klavye durumu için state değişkeni
   @State private var selectedUnit: String = "Grams" // Birim seçimi için state
@@ -169,25 +169,28 @@ struct ContentView: View {
             
             VStack {
               Spacer()
-                .frame(height: 100)
-              Text("↓ Search Food ↓")
+                .frame(height: 200)
+              if !showTotalsMenu{
+                Text("↓ Search Food ↓")
+                  .padding()
+                  .background(.colorButton)
+                  .foregroundColor(.colorText)
+                  .cornerRadius(10)
+                  .shadow(radius: 5)
+
+                TextField("", text: $searchQuery, onCommit: {
+                  fetchNutritionData(for: searchQuery)
+                })
                 .padding()
-                .background(.colorButton)
+                .frame(width: 170)
                 .foregroundColor(.colorText)
+                .background(Color.colorButton)
                 .cornerRadius(10)
                 .shadow(radius: 5)
-              
-              TextField("", text: $searchQuery, onCommit: {
-                fetchNutritionData(for: searchQuery)
-              })
-              .padding()
-              .frame(width: 170)
-              .foregroundColor(.colorText)
-              .background(Color.colorButton)
-              .cornerRadius(10)
-              .shadow(radius: 5)
-              .keyboardType(.webSearch)
-              
+                .keyboardType(.webSearch)
+              }
+           
+
               Spacer()
               
               if showInput {
@@ -219,6 +222,7 @@ struct ContentView: View {
                   
                   TextField("" , text: $StringSliderValue)
                       .padding()
+                      .frame(maxWidth: 125)
                       .foregroundColor(.colorText)
                       .background(Color.colorButton)
                       .cornerRadius(10)
