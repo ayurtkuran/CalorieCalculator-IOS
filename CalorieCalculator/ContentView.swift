@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct FoodItem: Identifiable, Codable {
-    let id = UUID()
+  var id = UUID()
     let name: String
     var calories: Double
     var protein: Double
@@ -129,10 +129,12 @@ struct ContentView: View {
     
     saveTotals()
     self.showInput = false
+
     withAnimation {
       self.Eklendi.toggle()
     }
-    
+
+
     DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
       withAnimation {
         self.Eklendi.toggle()
@@ -177,6 +179,7 @@ struct ContentView: View {
                   .foregroundColor(.colorText)
                   .cornerRadius(10)
                   .shadow(radius: 5)
+                  .transition(.opacity.combined(with: .blurReplace)) // Geçiş animasyonu
 
                 TextField("", text: $searchQuery, onCommit: {
                   fetchNutritionData(for: searchQuery)
@@ -188,6 +191,7 @@ struct ContentView: View {
                 .cornerRadius(10)
                 .shadow(radius: 5)
                 .keyboardType(.webSearch)
+                .transition(.opacity.combined(with: .blurReplace)) // Geçiş animasyonu
               }
            
 
@@ -201,7 +205,8 @@ struct ContentView: View {
                     .background(Color.colorButton)
                     .cornerRadius(10)
                     .shadow(radius: 5)
-                  
+                    .transition(.opacity.combined(with: .blurReplace)) // Geçiş animasyonu
+
                   Menu {
                     ForEach(units, id: \.self) { unit in
                       Button(action: {
@@ -218,6 +223,7 @@ struct ContentView: View {
                       .background(Color.colorButton)
                       .cornerRadius(10)
                       .shadow(radius: 5)
+                      .transition(.opacity.combined(with: .blurReplace)) // Geçiş animasyonu
                   }
                   
                   TextField("" , text: $StringSliderValue)
@@ -246,6 +252,7 @@ struct ContentView: View {
                       .foregroundColor(.white.opacity(0.85))
                       .background(Color.green.opacity(0.95))
                       .cornerRadius(10)
+
                   }
                 }
                 .frame(maxWidth: 300)
@@ -267,6 +274,7 @@ struct ContentView: View {
               .background(Color.green.opacity(0.95))
               .cornerRadius(10)
               .shadow(radius: 5)
+              .transition(.opacity.combined(with: .blurReplace)) // Geçiş animasyonu
             Spacer()
               .frame(height: 100)
           }
@@ -281,6 +289,7 @@ struct ContentView: View {
                   .background(Color.colorButton)
                   .cornerRadius(10)
                   .shadow(radius: 5)
+                  
 
               }
               
@@ -291,6 +300,7 @@ struct ContentView: View {
                 .background(Color.colorButton)
                 .foregroundColor(.colorText)
                 .cornerRadius(10)
+              
               Spacer()
                 .frame(height: 20)
               Text("Total Protein: \(totalProtein, specifier: "%.1f") gr")
@@ -303,7 +313,7 @@ struct ContentView: View {
             .background(Color.gray.opacity(0.65))
             .cornerRadius(10)
             .padding()
-            .transition(.move(edge: .leading))
+            .transition(.opacity.combined(with: .blurReplace)) // Geçiş animasyonu
             Spacer()
           }
         }
@@ -314,7 +324,7 @@ struct ContentView: View {
             VStack {
               HStack {
                 Button(action: {
-                  withAnimation {
+                  withAnimation(.smooth) {
                     showInput = false
                     sliderValue = 250.0
                     totalCalories = 0.0
@@ -334,19 +344,22 @@ struct ContentView: View {
                     .background(Color.colorButton)
                     .cornerRadius(10)
                     .shadow(radius: 5)
+                    .transition(.opacity.combined(with: .blurReplace)) // Geçiş animasyonu
                 }
                 Button(action: {
-                  withAnimation {
-                    showTotalsMenu.toggle()
-                  }
+                  withAnimation(.linear) {
+                        showTotalsMenu.toggle()
+                    }
                 }) {
-                  Text("Toggle Menu")
-                    .padding()
-                    .frame(width: 170)
-                    .foregroundColor(.colorText)
-                    .background(Color.colorButton)
-                    .cornerRadius(10)
-                    .shadow(radius: 5)
+                    Text("Toggle Menu")
+                        .padding()
+                        .frame(width : 170)
+                        .background(Color.colorButton)
+                        .foregroundColor(.colorText)
+                        .cornerRadius(10)
+                        .shadow(radius: 5)
+                        .transition(.opacity.combined(with: .blurReplace)) // Geçiş animasyonu
+
                 }
               }
               .padding()

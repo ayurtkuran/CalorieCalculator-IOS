@@ -37,14 +37,14 @@ struct StartView: View {
                             .padding()
                     }
 
-                    Button(action: {
-                        if let _ = Double(calorieNeed), !calorieNeed.isEmpty {
-                            UserDefaults.standard.set(calorieNeed, forKey: "calorieNeed")
-                            isNextViewActive = true
-                            showAlert = false
-                        } else {
-                            showAlert = true
-                        }
+                  Button(action: withAnimation(.smooth){{
+                    if let _ = Double(calorieNeed), !calorieNeed.isEmpty {
+                      UserDefaults.standard.set(calorieNeed, forKey: "calorieNeed")
+                      isNextViewActive = true
+                      showAlert = false
+                    } else {
+                      showAlert = true
+                    }}
                     }) {
                         Text("Enter")
                             .padding()
