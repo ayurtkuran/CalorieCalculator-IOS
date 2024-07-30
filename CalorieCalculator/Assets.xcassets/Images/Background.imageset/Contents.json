@@ -1,19 +1,8 @@
 {
   "images" : [
     {
-      "filename" : "LightBackground-1440x900@2x 3.png",
-      "idiom" : "universal",
-      "scale" : "1x"
-    },
-    {
-      "appearances" : [
-        {
-          "appearance" : "luminosity",
-          "value" : "light"
-        }
-      ],
-      "filename" : "LightBackground-1440x900@2x.png",
-      "idiom" : "universal",
+      "filename" : "background_light.png",
+      "idiom" : "iphone",
       "scale" : "1x"
     },
     {
@@ -23,24 +12,13 @@
           "value" : "dark"
         }
       ],
-      "filename" : "DarkBackground-1440x900@2x-2.png",
-      "idiom" : "universal",
+      "filename" : "background_dark.jpg",
+      "idiom" : "iphone",
       "scale" : "1x"
     },
     {
-      "filename" : "LightBackground-1440x900@2x 4.png",
-      "idiom" : "universal",
-      "scale" : "2x"
-    },
-    {
-      "appearances" : [
-        {
-          "appearance" : "luminosity",
-          "value" : "light"
-        }
-      ],
-      "filename" : "LightBackground-1440x900@2x 1.png",
-      "idiom" : "universal",
+      "filename" : "background_light 1.png",
+      "idiom" : "iphone",
       "scale" : "2x"
     },
     {
@@ -50,24 +28,13 @@
           "value" : "dark"
         }
       ],
-      "filename" : "DarkBackground-1440x900@2x-2 1.png",
-      "idiom" : "universal",
+      "filename" : "background_dark 1.jpg",
+      "idiom" : "iphone",
       "scale" : "2x"
     },
     {
-      "filename" : "LightBackground-1440x900@2x 5.png",
-      "idiom" : "universal",
-      "scale" : "3x"
-    },
-    {
-      "appearances" : [
-        {
-          "appearance" : "luminosity",
-          "value" : "light"
-        }
-      ],
-      "filename" : "LightBackground-1440x900@2x 2.png",
-      "idiom" : "universal",
+      "filename" : "background_light 2.png",
+      "idiom" : "iphone",
       "scale" : "3x"
     },
     {
@@ -77,8 +44,8 @@
           "value" : "dark"
         }
       ],
-      "filename" : "DarkBackground-1440x900@2x-2 2.png",
-      "idiom" : "universal",
+      "filename" : "background_dark 2.jpg",
+      "idiom" : "iphone",
       "scale" : "3x"
     }
   ],
