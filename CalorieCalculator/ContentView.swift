@@ -169,11 +169,11 @@ struct ContentView: View {
             
             VStack {
               Spacer()
-                .frame(height: 200)
+                .frame(height: 100)
               Text("↓ Search Food ↓")
                 .padding()
+                .background(.colorButton)
                 .foregroundColor(.colorText)
-                .background(Color.colorButton)
                 .cornerRadius(10)
                 .shadow(radius: 5)
               
@@ -207,7 +207,8 @@ struct ContentView: View {
                         Text(unit)
                       }
                     }
-                  } label: {
+                  }
+                label: {
                     Text("Select Unit: \(selectedUnit)")
                       .padding()
                       .foregroundColor(.colorText)
@@ -276,6 +277,7 @@ struct ContentView: View {
                   .background(Color.colorButton)
                   .cornerRadius(10)
                   .shadow(radius: 5)
+
               }
               
               Spacer()
